@@ -1,2 +1,3 @@
 api_keys.env
 out.txt
+__pycache__

@@ -2,13 +2,15 @@ import os
 from dotenv import load_dotenv
 import requests
 import re
-
+from flask import Flask, request, url_for, session, redirect
+import spotipy
+from spotipy.oauth2 import SpotifyOAuth
 load_dotenv("./api_keys.env")
 
 YOUTUBE_API_KEY = os.getenv('YOUTUBE_API_KEY')
-SPOTIFY_CLIENT_ID = os.getenv('SPOTIPY_CLIENT_ID')
-SPOTIFY_CLIENT_SECRET = os.getenv('SPOTIPY_CLIENT_SECRET')
-SPOTIFY_REDIRECT_URI = os.getenv('SPOTIPY_REDIRECT_URI')
+SPOTIFY_CLIENT_ID = os.getenv('SPOTIFY_CLIENT_ID')
+SPOTIFY_CLIENT_SECRET = os.getenv('SPOTIFY_CLIENT_SECRET')
+SPOTIFY_REDIRECT_URI="http://localhost/8008/spotify/callback"
 
 #   Steps:
 #   Get a YT playlist
@@ -50,6 +52,7 @@ part = "snippet"
 # input = input("Enter link to YouTube playlist: ")
 input = "https://www.youtube.com/playlist?list=PLDIoUOhQQPlXr63I_vwF9GD8sAKh77dWU"
 input = "https://www.youtube.com/playlist?list=PLOHoVaTp8R7dfrJW5pumS0iD_dhlXKv17"
+youtubeBaseURL = "https://www.googleapis.com/youtube/v3/playlistItems?playlistId="
 playlistID = input.split("?list=")[1]
 doWhile = True
 results = []
@@ -61,7 +64,7 @@ while nextPageToken != "" or doWhile == True:
     #   youtube has a library to handle API requests like this.
     #   doing this statically as I think the extra dependancy 
     #   isnt worth saving a couple lines of code
-    URL = "https://www.googleapis.com/youtube/v3/playlistItems?playlistId=" + playlistID + "&key=" + YOUTUBE_API_KEY + "&part=" +  part + "&maxResults=" + maxResults + "&pageToken=" + nextPageToken
+    URL = youtubeBaseURL + playlistID + "&key=" + YOUTUBE_API_KEY + "&part=" +  part + "&maxResults=" + maxResults + "&pageToken=" + nextPageToken
     response = requests.get(URL).json()
 
     for item in response['items']:
@@ -72,18 +75,54 @@ while nextPageToken != "" or doWhile == True:
     else:
         nextPageToken = response['nextPageToken']
 
+
+# create an endpoint using Flask
+app = Flask(__name__)
+
+app.secret_key = "dqlow9i723"
+app.config['SESSION_COOKIE_NAME'] = 'YTSPCookie'
+
+
+@app.route("/")
+def login():
+    sp_oauth = create_spotify_oauth()
+    auth_url = sp_oauth.get_authorize_url()
+    print(auth_url)
+    return redirect(auth_url)
+
+@app.route("/authorize")
+def authorize():
+    return "redirect page"
+
+@app.route("/convert")
+def convert():
+    return "convert page"
+
+def create_spotify_oauth():
+    return SpotifyOAuth(
+        client_id=SPOTIFY_CLIENT_ID,
+        client_secret=SPOTIFY_CLIENT_SECRET,
+        redirect_uri=url_for('authorize', _external=True),
+        scope="playlist-modify-private"
+    )
+
+
+
+
 #   Spotify signin
+scope = "playlist-modify-private"
+responseType = "code"
+spotifyProviderURL = "https://accounts.spotify.com/authorize"
+URL = spotifyProviderURL + '?' + "client_id=" + SPOTIFY_CLIENT_ID + "&scope=" + scope + "&redirect_uri=" + SPOTIFY_REDIRECT_URI + "&response_type=" + responseType
+requests.get(URL)
 
 
 
 
-
-
-
-#debug 
-f = open("out.txt", "w", encoding="utf-8")
-for title in results:
-    f.write(title + '\n')
-f.close()
-##
+# #debug 
+# f = open("out.txt", "w", encoding="utf-8")
+# for title in results:
+#     f.write(title + '\n')
+# f.close()
+# ##
 
