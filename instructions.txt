@@ -1,0 +1,23 @@
+Hi! So you've stumbled across this git repo and are most likely wondering how to use this thing. 
+
+1.  Get your own API keys for spotify and youtube (redirect for spotify is 'http://localhost:5000/authorize')
+
+2.  make a .env file with the appropiate file names and install the appropiate dependancies. 
+
+2**.  Spotipy has some issues at the time of writing this and 'pip install git+https://github.com/plamere/spotipy.git --upgrade'
+      will pull from their git repo the correct version rather than the incorrect version linked to pip install
+
+3.  in the file containing the code, run 'flask run'
+
+5.  make sure to get a PLAYLIST URL and not a VIDEO URL from Youtube. common mistake. 
+
+6.  go to localhost 5000 and sign in via spotify
+
+7.  profit. 
+
+
+
+// I've been told that this service will likely be turned into something akin to what youtube-to-mp3 was back in the day but I've had this idea on my mind for far too long. 
+// Also because my friend wanted to convert some playlists and I've kept them waiting for far too long. 
+
+// There are more and better ones out there as I write this. But this one is special becuase its mine :)
